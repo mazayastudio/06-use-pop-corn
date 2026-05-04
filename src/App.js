@@ -57,13 +57,19 @@ export default function App() {
 	const [watched, setWatched] = useState(tempWatchedData);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState("");
-	const query = "sfdsafasd";
+	const [query, setQuery] = useState("");
 
 	useEffect(
 		function () {
+			if (query.length < 3) {
+				setMovies([]);
+				setError("");
+				return;
+			}
 			async function fetchMovies() {
 				try {
 					setIsLoading(true);
+					setError("");
 					const res = await fetch(
 						`http://www.omdbapi.com/?apikey=${KEY}&s=${query}`,
 					);
@@ -74,7 +80,6 @@ export default function App() {
 					if (data.Response === "False") throw new Error(data.Error);
 					setMovies(data.Search);
 				} catch (error) {
-					console.error(error);
 					setError(error.message);
 				} finally {
 					setIsLoading(false);
@@ -87,7 +92,8 @@ export default function App() {
 
 	return (
 		<>
-			<NavBar movies={movies}>
+			<NavBar movies={movies} query={query} setQuery={setQuery}>
+				<Search query={query} setQuery={setQuery} />
 				<NumResults movies={movies} />
 			</NavBar>
 			<Main movies={movies}>
@@ -124,7 +130,6 @@ function NavBar({ children }) {
 	return (
 		<nav className="nav-bar">
 			<Logo />
-			<Search />
 			{children}
 		</nav>
 	);
@@ -139,8 +144,7 @@ function Logo() {
 	);
 }
 
-function Search() {
-	const [query, setQuery] = useState("");
+function Search({ query, setQuery }) {
 	return (
 		<input
 			className="search"
