@@ -58,6 +58,15 @@ export default function App() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState("");
 	const [query, setQuery] = useState("");
+	const [selectedId, setSelectedId] = useState(null);
+
+	function handleSelectMovie(id) {
+		setSelectedId((selectedId) => (selectedId === id ? null : id));
+	}
+
+	function handleCloseMovie() {
+		setSelectedId(null);
+	}
 
 	useEffect(
 		function () {
@@ -100,14 +109,20 @@ export default function App() {
 				<Box movies={movies}>
 					{/* {isLoading ? <Loader /> : <MovieLists movies={movies} />} */}
 					{isLoading && <Loader />}
-					{!isLoading && !error && <MovieLists movies={movies} />}
+					{!isLoading && !error && (
+						<MovieLists movies={movies} onSelectMovie={handleSelectMovie} />
+					)}
 					{error && <ErrorMessage message={error} />}
 				</Box>
 				<Box>
-					<>
-						<WatchSummary watched={watched} />
-						<WatchList watched={watched} />
-					</>
+					{selectedId ? (
+						<MovieDetails selectedId={selectedId} onClose={handleCloseMovie} />
+					) : (
+						<>
+							<WatchSummary watched={watched} />
+							<WatchList watched={watched} />
+						</>
+					)}
 				</Box>
 			</Main>
 		</>
@@ -182,19 +197,19 @@ function Box({ children }) {
 	);
 }
 
-function MovieLists({ movies }) {
+function MovieLists({ movies, onSelectMovie }) {
 	return (
-		<ul className="list">
+		<ul className="list list-movies">
 			{movies?.map((movie) => (
-				<Movie key={movie.imdbID} movie={movie} />
+				<Movie key={movie.imdbID} movie={movie} onSelectMovie={onSelectMovie} />
 			))}
 		</ul>
 	);
 }
 
-function Movie({ movie }) {
+function Movie({ movie, onSelectMovie }) {
 	return (
-		<li>
+		<li onClick={() => onSelectMovie(movie.imdbID)}>
 			<img src={movie.Poster} alt={`${movie.Title} poster`} />
 			<h3>{movie.Title}</h3>
 			<div>
@@ -204,6 +219,17 @@ function Movie({ movie }) {
 				</p>
 			</div>
 		</li>
+	);
+}
+
+function MovieDetails({ selectedId, onClose }) {
+	return (
+		<div className="details">
+			<button className="btn-back" onClick={onClose}>
+				←
+			</button>
+			<p>{selectedId}</p>
+		</div>
 	);
 }
 
