@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 
 const containerStyle = {
@@ -30,6 +30,10 @@ export default function StarRating({
 }) {
   const [rating, setRating] = useState(defaultRating);
   const [tempRating, setTempRating] = useState(0);
+
+  useEffect(() => {
+    setRating(defaultRating);
+  }, [defaultRating]);
 
   function handleRate(rate) {
     setRating(rate);
